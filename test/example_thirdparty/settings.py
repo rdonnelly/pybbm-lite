@@ -76,7 +76,6 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'pybb',
     'pytils',
-    'sorl.thumbnail',
     #'south',
     'pure_pagination',
     'account',

@@ -80,36 +80,10 @@ User profile settings
 Next settings used only if you don't customize user profile model,
 user profile creation form or templates.
 
-PYBB_AVATAR_WIDTH and PYBB_AVATAR_HEIGHT
-........................................
-
-Avatar width and height respectively to use in templates (avatars scaled using sorl.thumbnail)
-(default 80 and 80)
-
-PYBB_MAX_AVATAR_SIZE
-....................
-
-Maximum avatar size, in bytes (default is 1024*50 wich is 50KB)
-
 PYBB_DEFAULT_TIME_ZONE
 ......................
 
 Default time zone for forum as integer. E.g. setting to 1 means GMT+1 zone. (default +3 Moscow)
-
-PYBB_SIGNATURE_MAX_LENGTH
-.........................
-
-Limit of sybmols in user signature
-
-PYBB_SIGNATURE_MAX_LINES
-........................
-
-Limit of lines in user signature
-
-PYBB_DEFAULT_AVATAR_URL
-.......................
-
-Will be used if user doesn't upload avatar
 
 Style
 -----
@@ -264,7 +238,7 @@ Automatically adds add post and add topic permissions to users on user.save().
 PYBB_PERMISSION_HANDLER
 .......................
 
-If you need custom permissions (for example, private forums based on application-specific 
-user groups), you can set `PYBB_PERMISSION_HANDLER` to a class which inherits from 
-`pybb.permissions.DefaultPermissionHandler`, and override any of the `filter_*` and 
+If you need custom permissions (for example, private forums based on application-specific
+user groups), you can set `PYBB_PERMISSION_HANDLER` to a class which inherits from
+`pybb.permissions.DefaultPermissionHandler`, and override any of the `filter_*` and
 `may_*` method. For details, look at the source of `pybb.permissions.DefaultPermissionHandler`.

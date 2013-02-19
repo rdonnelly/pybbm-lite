@@ -7,7 +7,7 @@
     <!--[if lt IE 9]>
             <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <link rel="stylesheet" href="{{ STATIC_URL }}example_bootstrap.css" type='text/css'>
+    <link rel="stylesheet" href="{{ STATIC_URL }}bootstrap/example_bootstrap.css" type='text/css'>
 
     <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/smoothness/jquery-ui.css" type="text/css" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
@@ -33,7 +33,7 @@
 <div class="navbar navbar-inverse navbar-fixed-top">
     <div class="navbar-inner">
         <div class="container">
-            <a class="brand" href="/">PYBB Modified.</a>
+            <a class="brand" href="/">PYBB Modified Lite.</a>
             <ul class="nav">
                 {% if request.user.is_authenticated %}
                     <li>
@@ -56,8 +56,7 @@
                         <a href="{% url registration_register %}">Register</a>
                     </li>
                 {% endif %}
-                <li><a href="http://github.com/hovel/pybbm">Code</a></li>
-                <li><a href="http://pypi.python.org/pypi/pybbm">Download</a></li>
+                <li><a href="http://github.com/rdonnelly/pybbm-lite">Code</a></li>
                 <li><a href="http://readthedocs.org/docs/pybbm/en/latest/">Documentation</a></li>
             </ul>
         </div>
@@ -84,7 +83,7 @@
         {% endif %}
         {% if request.path == '/' %}
             <div class='forum-headline alert alert-block'>
-                This is a default installation of PyBBModified with default theme from example.
+                This is a default installation of PyBBModified Lite with default theme from example.
             </div>
         {% endif %}
         <div id="content">
@@ -92,43 +91,11 @@
             {% endblock content %}
         </div>
     </div>
-    {% if request.path == '/' %}
-    <div class="row">
-        <div class="span5">
-            <h2>Fully Documented</h2>
-            <p>Everything explained</p>
-            <p><a class="btn" href="http://readthedocs.org/docs/pybbm/en/latest/">Read docs now &raquo;</a></p>
-        </div>
-        <div class="span5">
-            <h2>Heavily tested</h2>
-            <p> 95% code coverage!</p>
-            <p><a class="btn" href="https://github.com/hovel/pybbm/blob/master/pybb/tests.py">View tests &raquo;</a></p>
-        </div>
-        <div class="span5">
-            <h2>Want a fast start?</h2>
-            <p>Start from ready to use example project</p>
-            <p><a class="btn" href="http://readthedocs.org/docs/pybbm/en/latest/example.html">Read more &raquo;</a></p>
-        </div>
-    </div>
-
-    <div class="row spaced">
-        <div class="span5">
-            <h2>Django application</h2>
-            <p>Easy to embed to any django project</p>
-            <p><a class="btn success" href="http://readthedocs.org/docs/pybbm/en/latest/install.html">Learn how to install &raquo;</a></p>
-        </div>
-        <div class="span5">
-            <h2>Help welcomed</h2>
-            <p>Extended PyBBM? Push your changes.</p>
-            <p><a class="btn" href="https://github.com/hovel/pybbm">Fork repo &raquo;</a></p>
-        </div>
-    </div>
-    {% endif %}
 
     <footer>
         powered by:
         <a href="http://www.djangoproject.com">django</a>,&nbsp;
-        <a href="http://www.pybbm.org">pybbm</a>
+        <a href="http://github.com/rdonnelly/pybbm-lite">pybbm lite</a>
     </footer>
 
 </div> <!-- /container -->

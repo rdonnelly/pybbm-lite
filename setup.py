@@ -1,13 +1,10 @@
 from setuptools import setup, find_packages
 
 setup(
-    version = '0.12.4',
-    description = 'PyBB Modified. Django forum application',
+    version = '0.13',
+    description = 'PyBB Modified Lite. Django forum application',
     long_description = open('README.rst').read(),
-    author = 'Pavel Zhukov',
-    author_email = 'gelios@gmail.com',
-    name = 'pybbm',
-    url = 'http://www.pybbm.org/',
+    name = 'pybbm-lite',
     packages = find_packages(),
     include_package_data = True,
     package_data = {'': ['pybb/templates', 'pybb/static']},
@@ -18,7 +15,6 @@ setup(
             'south',
             'pytils',
             'django-annoying',
-            'sorl-thumbnail',
             'django-pure-pagination',
             'django-mailer',
             ],

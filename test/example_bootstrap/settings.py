@@ -67,7 +67,6 @@ INSTALLED_APPS = (
     'pybb',
     'pytils',
     'registration',
-    'sorl.thumbnail',
     'south',
     'pure_pagination',
 

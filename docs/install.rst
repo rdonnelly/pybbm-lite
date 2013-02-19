@@ -12,7 +12,6 @@ PyBBM required next packages to be installed:
 * south
 * pytils
 * django-annoying
-* sorl-thumbnail
 * django-pure-pagination
 
 * django-cbv (for django versions < 1.3)
@@ -20,10 +19,6 @@ PyBBM required next packages to be installed:
 All packages can be installed as a dependency for PyBBM if you install it with pip or easy_install::
 
     pip install pybbm
-
-* PIL (Python Imaging Library) is optional if you configure sorl.thumbnail to use different backend,
-  but remember, that using an ImageField in forms requires that the Python Imaging Library is
-  installed (e.g. you should install it if you use buildin profile).
 
 Fresh project
 -------------
@@ -38,7 +33,6 @@ Enable applications and edit settings
 
     * pybb
     * pytils
-    * sorl.thumbnail
     * pure_pagination
 
   ::
@@ -47,7 +41,6 @@ Enable applications and edit settings
         ....
         'pybb',
         'pytils',
-        'sorl.thumbnail',
         'pure_pagination',
         ...
     )
