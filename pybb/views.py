@@ -458,13 +458,6 @@ class TopicPollVoteView(generic.UpdateView):
 
 
 @login_required
-def post_ajax_preview(request):
-    content = request.POST.get('data')
-    html = defaults.PYBB_MARKUP_ENGINES[defaults.PYBB_MARKUP](content)
-    return render(request, 'pybb/_markitup_preview.html', {'html': html})
-
-
-@login_required
 def mark_all_as_read(request):
     for forum in perms.filter_forums(request.user, Forum.objects.all()):
         try:

@@ -536,11 +536,6 @@ class FeaturesTest(TestCase, SharedTestModule):
         user = User.objects.get(username=user.username)
         self.assertFalse(user.is_active)
 
-    def test_ajax_preview(self):
-        self.login_client()
-        response = self.client.post(reverse('pybb:post_ajax_preview'), data={'data': '[b]test bbcode ajax preview[b]'})
-        self.assertContains(response, '<strong>test bbcode ajax preview</strong>')
-
     def test_headline(self):
         self.forum.headline = 'test <b>headline</b>'
         self.forum.save()

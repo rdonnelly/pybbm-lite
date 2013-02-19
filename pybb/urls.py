@@ -47,9 +47,6 @@ urlpatterns += patterns('pybb.views',
                         url('^post/(?P<pk>\d+)/delete/$', DeletePostView.as_view(), name='delete_post'),
                         url('^post/(?P<pk>\d+)/moderate/$', ModeratePost.as_view(), name='moderate_post'),
 
-                        # API
-                        url('^api/post_ajax_preview/$', 'post_ajax_preview', name='post_ajax_preview'),
-
                         # Commands
                         url('^mark_all_as_read/$', 'mark_all_as_read', name='mark_all_as_read')
                         )

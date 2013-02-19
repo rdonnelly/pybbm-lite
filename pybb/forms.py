@@ -50,7 +50,7 @@ class PostForm(forms.ModelForm):
     poll_question = forms.CharField(
         label=_('Poll question'),
         required=False,
-        widget=forms.Textarea(attrs={'class': 'no-markitup'}))
+        widget=forms.Textarea())
 
     class Meta(object):
         model = Post
