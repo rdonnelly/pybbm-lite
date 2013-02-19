@@ -23,32 +23,9 @@ from postmarkup import render_bbcode
 from markdown import Markdown
 from django.utils.html import urlize
 
-PYBB_SMILES_PREFIX = getattr(settings, 'PYBB_SMILES_PREFIX', 'pybb/emoticons/')
-
-PYBB_SMILES = getattr(settings, 'PYBB_SMILES', {
-    '&gt;_&lt;': 'angry.png',
-    ':.(': 'cry.png',
-    'o_O': 'eyes.png',
-    '[]_[]': 'geek.png',
-    '8)': 'glasses.png',
-    ':D': 'lol.png',
-    ':(': 'sad.png',
-    ':O': 'shok.png',
-    '-_-': 'shy.png',
-    ':)': 'smile.png',
-    ':P': 'tongue.png',
-    ';)': 'wink.png'
-})
-
-def smile_it(str):
-    s = str
-    for smile, url in PYBB_SMILES.items():
-        s = s.replace(smile, '<img src="%s%s%s" alt="smile" />' % (settings.STATIC_URL, PYBB_SMILES_PREFIX, url))
-    return s
-
 PYBB_MARKUP_ENGINES = getattr(settings, 'PYBB_MARKUP_ENGINES', {
-    'bbcode': lambda str: urlize(smile_it(render_bbcode(str, exclude_tags=['size', 'center']))),
-    'markdown': lambda str: urlize(smile_it(Markdown(safe_mode='escape').convert(str)))
+    'bbcode': lambda str: urlize(render_bbcode(str, exclude_tags=['size', 'center'])),
+    'markdown': lambda str: urlize(Markdown(safe_mode='escape').convert(str))
 })
 
 PYBB_QUOTE_ENGINES = getattr(settings, 'PYBB_QUOTE_ENGINES', {

@@ -37,42 +37,7 @@ manage emails from your site in queue. But in this case you have to periodically
 send emails from queue. For more information see `app home page <https://github.com/pinax/django-mailer/>`_.
 (default False)
 
-Emoticons
----------
 
-PYBB_SMILES_PREFIX
-..................
-
-Prefix for emoticons images set, related to STATIC_URL (default 'pybb/emoticons')
-
-PYBB_SMILES
-...........
-
-Dict for emoticon replacement.
-Key - text to be replaced, value - image name.
-
-default::
-
-    {
-        '&gt;_&lt;': 'angry.png',
-        ':.(': 'cry.png',
-        'o_O': 'eyes.png',
-        '[]_[]': 'geek.png',
-        '8)': 'glasses.png',
-        ':D': 'lol.png',
-        ':(': 'sad.png',
-        ':O': 'shok.png',
-        '-_-': 'shy.png',
-        ':)': 'smile.png',
-        ':P': 'tongue.png',
-        ';)': 'wink.png'
-    }
-
-e.g. text  ";)" in post will be replaced to::
-
-    <img src="{{ STATIC_URL }}{{ PYBB_SMILES_PREFIX }}wink.png">
-
-with default setting.
 
 User profile settings
 ---------------------
@@ -111,14 +76,13 @@ PYBB_MARKUP_ENGINES
 Dict with avaiable markup engines. One of them should be selected with PYBB_DEFAULT_MARKUP
 
 Markup engine it's a function, that accept post.body as first argument, and return
-output as rendered html. Markup engine should take care of replacing smiles in body with
-related emoticons.
+output as rendered html.
 
 by default PyBBM support `bbcode` and `markdown` markup::
 
     {
-        'bbcode': lambda str: urlize(smile_it(render_bbcode(str, exclude_tags=['size', 'center']))),
-        'markdown': lambda str: urlize(smile_it(Markdown(safe_mode='escape').convert(str)))
+        'bbcode': lambda str: urlize(render_bbcode(str, exclude_tags=['size', 'center'])),
+        'markdown': lambda str: urlize(Markdown(safe_mode='escape').convert(str))
     })
 
 Please note, that `size` and `center` tags are disabled by default, enable them if you have right markup for them.

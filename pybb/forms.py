@@ -80,9 +80,6 @@ class PostForm(forms.ModelForm):
             del self.fields['poll_type']
             del self.fields['poll_question']
 
-        self.available_smiles = defaults.PYBB_SMILES
-        self.smiles_prefix = defaults.PYBB_SMILES_PREFIX
-
     def clean_body(self):
         body = self.cleaned_data['body']
         user = self.user or self.instance.user
