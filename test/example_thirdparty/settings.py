@@ -126,4 +126,3 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Pybb
 PYBB_TEMPLATE = "site_base.html"
-PYBB_ATTACHMENT_ENABLE = True

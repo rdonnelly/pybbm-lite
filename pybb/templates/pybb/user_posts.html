@@ -4,9 +4,6 @@
 {% block content %}
     <h1><a href="{{ profile.pybb_profile.get_absolute_url }}">{{ profile.username }}</a></h1>
     <div class="userinfo">
-        <div class="avatar">
-            <img src="{{ profile.pybb_profile.avatar_url }}" alt="" />
-        </div>
         {% for topic in list %}
         <li class="user">
 

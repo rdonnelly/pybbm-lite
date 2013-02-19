@@ -212,7 +212,7 @@ class FeaturesTest(TestCase, SharedTestModule):
         topic_1 = self.topic
         topic_2 = Topic(name='topic_2', forum=self.forum, user=self.user)
         topic_2.save()
-       
+
         Post(topic=topic_2, user=self.user, body='one').save()
 
         user_ann = User.objects.create_user('ann', 'ann@localhost', 'ann')
@@ -240,7 +240,7 @@ class FeaturesTest(TestCase, SharedTestModule):
         self.assertEqual(TopicReadTracker.objects.filter(user=user_bob).count(), 1)
         self.assertEqual(TopicReadTracker.objects.filter(user=user_bob, topic=topic_1).count(), 1)
 
-        # user_bob reads topic_2, he should get a forum read tracker, 
+        # user_bob reads topic_2, he should get a forum read tracker,
         #  there should be no topic read trackers for user_bob
         client_bob.get(topic_2.get_absolute_url())
         self.assertEqual(TopicReadTracker.objects.all().count(), 1)
@@ -252,7 +252,7 @@ class FeaturesTest(TestCase, SharedTestModule):
             [t.unread for t in pybb_topic_unread([topic_1, topic_2], user_bob)],
             [False, False])
 
-        # user_ann creates topic_3, they should get a new topic read tracker in the db 
+        # user_ann creates topic_3, they should get a new topic read tracker in the db
         add_topic_url = reverse('pybb:add_topic', kwargs={'forum_id': self.forum.id})
         response = client_ann.get(add_topic_url)
         values = self.get_form_values(response)
@@ -309,7 +309,7 @@ class FeaturesTest(TestCase, SharedTestModule):
         topic_1 = self.topic
         topic_2 = Topic(name='topic_2', forum=self.forum, user=self.user)
         topic_2.save()
-       
+
         Post(topic=topic_2, user=self.user, body='one').save()
 
         forum_1 = self.forum
@@ -331,7 +331,7 @@ class FeaturesTest(TestCase, SharedTestModule):
         self.assertEqual(TopicReadTracker.objects.filter(user=self.user).count(), 1)
         self.assertEqual(TopicReadTracker.objects.filter(user=self.user, topic=topic_1).count(), 1)
 
-        # user reads topic_2, they should get a forum read tracker, 
+        # user reads topic_2, they should get a forum read tracker,
         #  there should be no topic read trackers for the user
         client.get(topic_2.get_absolute_url())
         self.assertEqual(TopicReadTracker.objects.all().count(), 0)
@@ -463,7 +463,7 @@ class FeaturesTest(TestCase, SharedTestModule):
         post_in_hidden = Post(topic=topic_in_hidden, user=self.user, body='hidden')
         post_in_hidden.save()
 
-        
+
         self.assertFalse(category.id in [c.id for c in client.get(reverse('pybb:index')).context['categories']])
         self.assertEqual(client.get(category.get_absolute_url()).status_code, 404)
         self.assertEqual(client.get(forum_in_hidden.get_absolute_url()).status_code, 404)
@@ -631,34 +631,6 @@ class FeaturesTest(TestCase, SharedTestModule):
         response = self.client.post(add_post_url, values, follow=True)
         self.assertEqual(response.status_code, 200)
 
-    def test_subscription(self):
-        user = User.objects.create_user(username='user2', password='user2', email='user2@example.com')
-        client = Client()
-        client.login(username='user2', password='user2')
-        response = client.get(reverse('pybb:add_subscription', args=[self.topic.id]), follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(user in list(self.topic.subscribers.all()))
-
-        # create a new reply (with another user)
-        self.client.login(username='zeus', password='zeus')
-        add_post_url = reverse('pybb:add_post', args=[self.topic.id])
-        response = self.client.get(add_post_url)
-        values = self.get_form_values(response)
-        values['body'] = 'test subscribtion юникод'
-        response = self.client.post(add_post_url, values, follow=True)
-        self.assertEqual(response.status_code, 200)
-        new_post = Post.objects.get(pk=2)
-
-        # there should only be one email in the outbox (to user2@example.com)
-        self.assertEqual(len(mail.outbox),1)
-        self.assertTrue([msg for msg in mail.outbox if new_post.get_absolute_url() in msg.body])
-
-        # unsubscribe
-        client.login(username='user2', password='user2')
-        self.assertTrue([msg for msg in mail.outbox if new_post.get_absolute_url() in msg.body])
-        response = client.get(reverse('pybb:delete_subscription', args=[self.topic.id]), follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(user not in list(self.topic.subscribers.all()))
 
     def test_topic_updated(self):
         topic = Topic(name='etopic', forum=self.forum, user=self.user)
@@ -867,44 +839,6 @@ class PreModerationTest(TestCase, SharedTestModule):
     def tearDown(self):
         defaults.PYBB_PREMODERATION = self.ORIG_PYBB_PREMODERATION
 
-        
-class AttachmentTest(TestCase, SharedTestModule):
-    def setUp(self):
-        self.PYBB_ATTACHMENT_ENABLE = defaults.PYBB_ATTACHMENT_ENABLE
-        defaults.PYBB_ATTACHMENT_ENABLE = True
-        self.ORIG_PYBB_PREMODERATION = defaults.PYBB_PREMODERATION
-        defaults.PYBB_PREMODERATION = False
-        self.file = open(os.path.join(os.path.dirname(__file__), 'static', 'pybb', 'img','attachment.png'))
-        self.create_user()
-        self.create_initial()
-
-    def test_attachment(self):
-        add_post_url = reverse('pybb:add_post', kwargs={'topic_id': self.topic.id})
-        self.login_client()
-        response = self.client.get(add_post_url)
-        values = self.get_form_values(response)
-        values['body'] = 'test attachment'
-        values['attachments-0-file'] = self.file
-        response = self.client.post(add_post_url, values, follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(Post.objects.filter(body='test attachment').exists())
-
-    def test_attachment(self):
-        add_post_url = reverse('pybb:add_post', kwargs={'topic_id': self.topic.id})
-        self.login_client()
-        response = self.client.get(add_post_url)
-        values = self.get_form_values(response)
-        values['body'] = 'test attachment'
-        values['attachments-0-file'] = self.file
-        del values['attachments-INITIAL_FORMS']
-        del values['attachments-TOTAL_FORMS']
-        with self.assertRaises(ValidationError):
-            self.client.post(add_post_url, values, follow=True)
-
-    def tearDown(self):
-        defaults.PYBB_ATTACHMENT_ENABLE = self.PYBB_ATTACHMENT_ENABLE
-        defaults.PYBB_PREMODERATION = self.ORIG_PYBB_PREMODERATION
-
 
 class PollTest(TestCase, SharedTestModule):
     def setUp(self):
@@ -1091,24 +1025,24 @@ class FiltersTest(TestCase, SharedTestModule):
         response = self.client.post(add_post_url, values, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Post.objects.all()[0].body, u'test\nmultiple empty lines')
-        
+
 from pybb import permissions
 from django.db.models import Q
 
 class CustomPermissionHandler(permissions.DefaultPermissionHandler):
-    """ 
-    a custom permission handler which changes the meaning of "hidden" forum:
-    "hidden" forum or category is visible for all logged on users, not only staff 
     """
-        
+    a custom permission handler which changes the meaning of "hidden" forum:
+    "hidden" forum or category is visible for all logged on users, not only staff
+    """
+
     def filter_categories(self, user, qs):
         return qs.filter(hidden=False) if user.is_anonymous() else qs
-        
+
     def filter_forums(self, user, qs):
         if user.is_anonymous():
             qs = qs.filter(Q(hidden=False)&Q(category__hidden=False))
-        return qs        
-    
+        return qs
+
     def filter_topics(self, user, qs):
         if user.is_anonymous():
             qs = qs.filter(Q(forum__hidden=False)&Q(forum__category__hidden=False))
@@ -1121,7 +1055,7 @@ class CustomPermissionHandler(permissions.DefaultPermissionHandler):
 
 class CustomPermissionHandlerTest(TestCase, SharedTestModule):
     """ test custom permission handler """
-    
+
     def setUp(self):
         from pybb import views
         self.create_user()
@@ -1135,24 +1069,24 @@ class CustomPermissionHandlerTest(TestCase, SharedTestModule):
             t = Topic(name='a topic', forum=f, user=self.user)
             t.save()
             Post(topic=t, user=self.user, body='test').save()
-        
+
         # override the permission handler. this cannot be done with @override_settings as
         # permissions.perms is already imported at this point, instead we got to monkeypatch
         # the modules (not really nice, but only an issue in tests)
         views.perms = permissions.perms = permissions._resolve_class('pybb.tests.CustomPermissionHandler')
-    
+
     def tearDown(self):
         from pybb import views
         # reset permission handler (otherwise other tests may fail)
         views.perms = permissions.perms = permissions._resolve_class('pybb.permissions.DefaultPermissionHandler')
-    
+
     def _get_with_user(self, url, username=None, password=None):
-        if username: 
+        if username:
             self.client.login(username=username, password=password)
         r = self.client.get(url,follow=True)
         self.client.logout()
         return r
-    
+
     def test_category_permission(self):
         for c in Category.objects.all():
             # anon user may not see category
@@ -1160,29 +1094,29 @@ class CustomPermissionHandlerTest(TestCase, SharedTestModule):
             if c.hidden:
                 self.assertEqual(r.status_code, 404)
             else:
-                self.assertEqual(r.status_code, 200)            
+                self.assertEqual(r.status_code, 200)
             # logged on user may see all categories
-            r=self._get_with_user(c.get_absolute_url(), 'zeus', 'zeus')        
+            r=self._get_with_user(c.get_absolute_url(), 'zeus', 'zeus')
             self.assertEqual(r.status_code, 200)
-            
+
     def test_forum_permission(self):
         for f in Forum.objects.all():
             r=self._get_with_user(f.get_absolute_url())
             self.assertEqual(r.status_code, 404 if f.hidden or f.category.hidden else 200)
-            r=self._get_with_user(f.get_absolute_url(), 'zeus', 'zeus')            
+            r=self._get_with_user(f.get_absolute_url(), 'zeus', 'zeus')
             self.assertEqual(r.status_code, 200)
-            
+
     def test_topic_permission(self):
         for t in Topic.objects.all():
             r=self._get_with_user(t.get_absolute_url())
             self.assertEqual(r.status_code, 404 if t.forum.hidden or t.forum.category.hidden else 200)
-            r=self._get_with_user(t.get_absolute_url(), 'zeus', 'zeus')            
+            r=self._get_with_user(t.get_absolute_url(), 'zeus', 'zeus')
             self.assertEqual(r.status_code, 200)
-            
+
     def test_post_permission(self):
         for p in Post.objects.all():
             r=self._get_with_user(p.get_absolute_url())
             self.assertEqual(r.status_code, 404 if p.topic.forum.hidden or p.topic.forum.category.hidden else 200)
-            r=self._get_with_user(p.get_absolute_url(), 'zeus', 'zeus')            
+            r=self._get_with_user(p.get_absolute_url(), 'zeus', 'zeus')
             self.assertEqual(r.status_code, 200)
-            
+

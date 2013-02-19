@@ -46,17 +46,6 @@ TZ_CHOICES = [(float(x[0]), x[1]) for x in (
 (11.5, '+11.5'), (12, '+12'), (13, '+13'), (14, '+14'),
 )]
 
-#noinspection PyUnusedLocal
-def get_file_path(instance, filename, to='pybb/avatar'):
-    """
-    This function generate filename with uuid4
-    it's useful if:
-    - you don't want to allow others to see original uploaded filenames
-    - users can upload images with unicode in filenames wich can confuse browsers and filesystem
-    """
-    ext = filename.split('.')[-1]
-    filename = "%s.%s" % (uuid.uuid4(), ext)
-    return os.path.join(to, filename)
 
 class Category(models.Model):
     name = models.CharField(_('Name'), max_length=80)
@@ -164,8 +153,6 @@ class Topic(models.Model):
     views = models.IntegerField(_('Views count'), blank=True, default=0)
     sticky = models.BooleanField(_('Sticky'), blank=True, default=False)
     closed = models.BooleanField(_('Closed'), blank=True, default=False)
-    subscribers = models.ManyToManyField(User, related_name='subscriptions', verbose_name=_('Subscribers'),
-        blank=True)
     post_count = models.IntegerField(_('Post count'), blank=True, default=0)
     readed_by = models.ManyToManyField(User, through='TopicReadTracker', related_name='readed_topics')
     on_moderation = models.BooleanField(_('On moderation'), default=False)
@@ -320,34 +307,15 @@ class PybbProfile(models.Model):
             ("block_users", "Can block any user"),
         )
 
-    signature = models.TextField(_('Signature'), blank=True,
-        max_length=defaults.PYBB_SIGNATURE_MAX_LENGTH)
-    signature_html = models.TextField(_('Signature HTML Version'), blank=True,
-        max_length=defaults.PYBB_SIGNATURE_MAX_LENGTH + 30)
     time_zone = models.FloatField(_('Time zone'), choices=TZ_CHOICES,
         default=float(defaults.PYBB_DEFAULT_TIME_ZONE))
     language = models.CharField(_('Language'), max_length=10, blank=True,
         choices=settings.LANGUAGES,
         default=settings.LANGUAGE_CODE)
-    show_signatures = models.BooleanField(_('Show signatures'), blank=True,
-        default=True)
     post_count = models.IntegerField(_('Post count'), blank=True, default=0)
-    avatar = ImageField(_('Avatar'), blank=True, null=True,
-        upload_to=get_file_path)
-    autosubscribe = models.BooleanField(_('Automatically subscribe'),
-        help_text=_('Automatically subscribe to topics that you answer'),
-        default=defaults.PYBB_DEFAULT_AUTOSUBSCRIBE)
 
     def save(self, *args, **kwargs):
-        self.signature_html = defaults.PYBB_MARKUP_ENGINES[defaults.PYBB_MARKUP](self.signature)
         super(PybbProfile, self).save(*args, **kwargs)
-
-    @property
-    def avatar_url(self):
-        try:
-            return self.avatar.url
-        except:
-            return defaults.PYBB_DEFAULT_AVATAR_URL
 
 
 class Profile(PybbProfile):
@@ -363,31 +331,6 @@ class Profile(PybbProfile):
 
     def get_absolute_url(self):
         return reverse('pybb:user', kwargs={'username': self.user.username})
-
-
-class Attachment(models.Model):
-
-    class Meta(object):
-        verbose_name = _('Attachment')
-        verbose_name_plural = _('Attachments')
-
-    post = models.ForeignKey(Post, verbose_name=_('Post'), related_name='attachments')
-    size = models.IntegerField(_('Size'))
-    file = models.FileField(_('File'),
-                            upload_to=lambda instance, filename: get_file_path(instance, filename, to=defaults.PYBB_ATTACHMENT_UPLOAD_TO))
-
-    def save(self, *args, **kwargs):
-        self.size = self.file.size
-        super(Attachment, self).save(*args, **kwargs)
-
-    def size_display(self):
-        size = self.size
-        if size < 1024:
-            return '%db' % size
-        elif size < 1024 * 1024:
-            return '%dKb' % int(size / 1024)
-        else:
-            return '%.2fMb' % (size / float(1024 * 1024))
 
 
 class TopicReadTracker(models.Model):

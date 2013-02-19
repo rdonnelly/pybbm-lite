@@ -4231,12 +4231,6 @@ a.badge:hover {
 .forum-headline {
   margin-top: 10px;
 }
-.attachments-form {
-  padding-bottom: 15px;
-}
-.attachment-link {
-  border-bottom: 1px dotted;
-}
 /* --- Unread --- */
 .state-indicator {
   display: block;

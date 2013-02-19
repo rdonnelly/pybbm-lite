@@ -27,7 +27,7 @@ except ImportError:
 from pure_pagination import Paginator
 
 from pybb.models import Category, Forum, Topic, Post, TopicReadTracker, ForumReadTracker, PollAnswerUser
-from pybb.forms import  PostForm, AdminPostForm, EditProfileForm, AttachmentFormSet, PollAnswerFormSet, PollForm
+from pybb.forms import  PostForm, AdminPostForm, EditProfileForm, PollAnswerFormSet, PollForm
 from pybb.templatetags.pybb_tags import pybb_topic_poll_not_voted
 from pybb import defaults
 
@@ -48,7 +48,7 @@ class IndexView(generic.ListView):
 
     def get_queryset(self):
         return perms.filter_categories(self.request.user, Category.objects.all())
-    
+
 class CategoryView(generic.DetailView):
 
     template_name = 'pybb/index.html'
@@ -84,7 +84,7 @@ class ForumView(generic.ListView):
             else:
                 qs = qs.filter(on_moderation=False)
         return qs
-    
+
 
 class LatestTopicsView(generic.ListView):
 
@@ -118,7 +118,6 @@ class TopicView(generic.ListView):
         ctx = super(TopicView, self).get_context_data(**kwargs)
         if self.request.user.is_authenticated():
             self.request.user.is_moderator = self.request.user.is_superuser or (self.request.user in self.topic.forum.moderators.all())
-            self.request.user.is_subscribed = self.request.user in self.topic.subscribers.all()
             if perms.may_post_as_admin(self.request.user):
                 ctx['form'] = AdminPostForm(initial={'login': self.request.user.username}, topic=self.topic)
             else:
@@ -128,9 +127,6 @@ class TopicView(generic.ListView):
             ctx['form'] = PostForm(topic=self.topic)
         else:
             ctx['form'] = None
-        if defaults.PYBB_ATTACHMENT_ENABLE:
-            aformset = AttachmentFormSet()
-            ctx['aformset'] = aformset
         if defaults.PYBB_FREEZE_FIRST_POST:
             ctx['first_post'] = self.topic.head
         else:
@@ -159,7 +155,7 @@ class TopicView(generic.ListView):
                 topic_mark.save()
 
             # Check, if there are any unread topics in forum
-            read = Topic.objects.filter(Q(forum=topic.forum) & (Q(topicreadtracker__user=request.user,topicreadtracker__time_stamp__gt=F('updated'))) | 
+            read = Topic.objects.filter(Q(forum=topic.forum) & (Q(topicreadtracker__user=request.user,topicreadtracker__time_stamp__gt=F('updated'))) |
                                                                 Q(forum__forumreadtracker__user=request.user,forum__forumreadtracker__time_stamp__gt=F('updated')))
             unread = Topic.objects.filter(forum=topic.forum).exclude(id__in=read)
             if not unread.exists():
@@ -177,7 +173,7 @@ class TopicView(generic.ListView):
 
 class PostEditMixin(object):
 
-    def get_form_class(self):        
+    def get_form_class(self):
         if perms.may_post_as_admin(self.request.user):
             return AdminPostForm
         else:
@@ -185,26 +181,15 @@ class PostEditMixin(object):
 
     def get_context_data(self, **kwargs):
         ctx = super(PostEditMixin, self).get_context_data(**kwargs)
-        if defaults.PYBB_ATTACHMENT_ENABLE and (not 'aformset' in kwargs):
-            ctx['aformset'] = AttachmentFormSet(instance=self.object if getattr(self, 'object') else None)
         if 'pollformset' not in kwargs:
             ctx['pollformset'] = PollAnswerFormSet(instance=self.object.topic if getattr(self, 'object') else None)
         return ctx
 
     def form_valid(self, form):
         success = True
-        save_attachments = False
         save_poll_answers = False
         self.object = form.save(commit=False)
 
-        if defaults.PYBB_ATTACHMENT_ENABLE:
-            aformset = AttachmentFormSet(self.request.POST, self.request.FILES, instance=self.object)
-            if aformset.is_valid():
-                save_attachments = True
-            else:
-                success = False
-        else:
-            aformset = AttachmentFormSet()
 
         pollformset = PollAnswerFormSet()
         if getattr(self, 'forum', None) or self.object.topic.head == self.object:
@@ -222,8 +207,6 @@ class PostEditMixin(object):
             self.object.topic.save()
             self.object.topic = self.object.topic
             self.object.save()
-            if save_attachments:
-                aformset.save()
             if save_poll_answers:
                 pollformset.save()
             return super(ModelFormMixin, self).form_valid(form)
@@ -274,17 +257,17 @@ class AddPostView(PostEditMixin, generic.CreateView):
             else:
                 from django.contrib.auth.views import redirect_to_login
                 return redirect_to_login(request.get_full_path())
-        
+
         self.forum = None
         self.topic = None
         if 'forum_id' in kwargs:
             self.forum = get_object_or_404(perms.filter_forums(request.user, Forum.objects.all()), pk=kwargs['forum_id'])
             if not perms.may_create_topic(self.user, self.forum):
-                raise PermissionDenied    
+                raise PermissionDenied
         elif 'topic_id' in kwargs:
             self.topic = get_object_or_404(perms.filter_topics(request.user, Topic.objects.all()), pk=kwargs['topic_id'])
             if not perms.may_create_post(self.user, self.topic):
-                raise PermissionDenied            
+                raise PermissionDenied
         return super(AddPostView, self).dispatch(request, *args, **kwargs)
 
 class EditPostView(PostEditMixin, generic.UpdateView):
@@ -296,7 +279,7 @@ class EditPostView(PostEditMixin, generic.UpdateView):
 
     @method_decorator(login_required)
     @method_decorator(csrf_protect)
-    def dispatch(self, request, *args, **kwargs):        
+    def dispatch(self, request, *args, **kwargs):
         return super(EditPostView, self).dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
@@ -320,7 +303,7 @@ class UserView(generic.DetailView):
         ctx = super(UserView, self).get_context_data(**kwargs)
         ctx['topic_count'] = Topic.objects.filter(user=ctx['target_user']).count()
         return ctx
-        
+
 
 class PostView(generic.RedirectView):
     def get_redirect_url(self, **kwargs):
@@ -397,15 +380,15 @@ class TopicActionBaseView(generic.View):
 
     def get_topic(self):
         return get_object_or_404(Topic, pk=self.kwargs['pk'])
-        
+
     @method_decorator(login_required)
-    def get(self, *args, **kwargs):        
+    def get(self, *args, **kwargs):
         self.topic = self.get_topic()
         self.action(self.topic)
         return HttpResponseRedirect(self.topic.get_absolute_url())
 
 class StickTopicView(TopicActionBaseView):
-        
+
     def action(self, topic):
         if not perms.may_stick_topic(self.request.user, topic):
             raise PermissionDenied
@@ -414,19 +397,19 @@ class StickTopicView(TopicActionBaseView):
 
 
 class UnstickTopicView(TopicActionBaseView):
-    
+
     def action(self, topic):
         if not perms.may_unstick_topic(self.request.user, topic):
-            raise PermissionDenied        
+            raise PermissionDenied
         topic.sticky = False
         topic.save()
 
 
 class CloseTopicView(TopicActionBaseView):
-    
+
     def action(self, topic):
         if not perms.may_close_topic(self.request.user, topic):
-            raise PermissionDenied        
+            raise PermissionDenied
         topic.closed = True
         topic.save()
 
@@ -434,7 +417,7 @@ class CloseTopicView(TopicActionBaseView):
 class OpenTopicView(TopicActionBaseView):
     def action(self, topic):
         if not perms.may_open_topic(self.request.user, topic):
-            raise PermissionDenied        
+            raise PermissionDenied
         topic.closed = False
         topic.save()
 
@@ -472,20 +455,6 @@ class TopicPollVoteView(generic.UpdateView):
 
     def get_success_url(self):
         return self.object.get_absolute_url()
-
-
-@login_required
-def delete_subscription(request, topic_id):
-    topic = get_object_or_404(perms.filter_topics(request.user, Topic.objects.all()), pk=topic_id)
-    topic.subscribers.remove(request.user)
-    return HttpResponseRedirect(topic.get_absolute_url())
-
-
-@login_required
-def add_subscription(request, topic_id):
-    topic = get_object_or_404(perms.filter_topics(request.user, Topic.objects.all()), pk=topic_id)
-    topic.subscribers.add(request.user)
-    return HttpResponseRedirect(topic.get_absolute_url())
 
 
 @login_required

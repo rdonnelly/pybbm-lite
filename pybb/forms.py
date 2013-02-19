@@ -17,21 +17,8 @@ except ImportError:
 
     tznow = datetime.datetime.now
 
-from pybb.models import Topic, Post, Profile, Attachment, PollAnswer
+from pybb.models import Topic, Post, Profile, PollAnswer
 from pybb import defaults
-
-
-class AttachmentForm(forms.ModelForm):
-    class Meta(object):
-        model = Attachment
-        fields = ('file', )
-
-    def clean_file(self):
-        if self.cleaned_data['file'].size > defaults.PYBB_ATTACHMENT_SIZE_LIMIT:
-            raise forms.ValidationError(_('Attachment is too big'))
-        return self.cleaned_data['file']
-
-AttachmentFormSet = inlineformset_factory(Post, Attachment, extra=1, form=AttachmentForm)
 
 
 class PollAnswerForm(forms.ModelForm):
@@ -187,23 +174,7 @@ except (AttributeError, ValueError, ObjectDoesNotExist):
 class EditProfileForm(forms.ModelForm):
     class Meta(object):
         model = profile_model
-        fields = ['signature', 'time_zone', 'language',
-                  'show_signatures', 'avatar']
-
-    signature = forms.CharField(widget=forms.Textarea(attrs={'rows': 2, 'cols:': 60}), required=False)
-
-    def clean_avatar(self):
-        if self.cleaned_data['avatar'] and (self.cleaned_data['avatar'].size > defaults.PYBB_MAX_AVATAR_SIZE):
-            forms.ValidationError(_('Avatar is too large, max size: %s bytes' % defaults.PYBB_MAX_AVATAR_SIZE))
-        return self.cleaned_data['avatar']
-
-    def clean_signature(self):
-        value = self.cleaned_data['signature'].strip()
-        if len(re.findall(r'\n', value)) > defaults.PYBB_SIGNATURE_MAX_LINES:
-            raise forms.ValidationError('Number of lines is limited to %d' % defaults.PYBB_SIGNATURE_MAX_LINES)
-        if len(value) > defaults.PYBB_SIGNATURE_MAX_LENGTH:
-            raise forms.ValidationError('Length of signature is limited to %d' % defaults.PYBB_SIGNATURE_MAX_LENGTH)
-        return value
+        fields = ['time_zone', 'language']
 
 
 class UserSearchForm(forms.Form):

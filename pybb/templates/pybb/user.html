@@ -6,13 +6,6 @@
 {% block content %}
     <h1>{{ target_user.username }}</h1>
     <div class="userinfo">
-    <div class="avatar">
-        {% thumbnail target_user.get_profile.avatar "80x80" as avatar %}
-            <img src="{{ avatar.url }}" alt="avatar">
-        {% empty %}
-            <img src="{{ PYBB_DEFAULT_AVATAR_URL }}" alt="avatar">
-        {% endthumbnail %}
-        </div>
         <div class="info">
             <div class="label">{% trans "Statistics" %}</div>
             <div>{% trans "Number of posts" %}: {{ target_user.posts.all.count }}.

@@ -24,14 +24,9 @@ class Command(BaseCommand):
                 profile = user.get_profile()
             except profile_model.DoesNotExist:
                 profile = profile_model(user=user)
-            profile.avatar = pybb_profile.avatar
-            profile.signature = pybb_profile.signature
-            profile.signature_html = pybb_profile.signature_html
             profile.time_zone = pybb_profile.time_zone
             profile.language = pybb_profile.language
-            profile.show_signatures = pybb_profile.show_signatures
             profile.markup = pybb_profile.markup
             profile.post_count = pybb_profile.post_count
-            profile.avatar = pybb_profile.avatar
             profile.save()
         self.stdout.write('All profiles successfuly migrated')

@@ -5,15 +5,10 @@ from django.conf import settings
 from django.db.models import ObjectDoesNotExist
 from django.db.models.signals import post_save, post_delete
 
-from pybb.subscription import notify_topic_subscribers
 from pybb import defaults
 
 
 def post_saved(instance, **kwargs):
-    notify_topic_subscribers(instance)
-
-    if instance.user.get_profile().autosubscribe:
-        instance.topic.subscribers.add(instance.user)
 
     if kwargs['created']:
         profile = instance.user.get_profile()

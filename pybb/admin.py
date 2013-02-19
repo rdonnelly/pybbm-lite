@@ -5,7 +5,7 @@ from django.contrib import admin
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
-from pybb.models import Category, Forum, Topic, Post, Profile, Attachment, PollAnswer
+from pybb.models import Category, Forum, Topic, Post, Profile, PollAnswer
 
 
 class ForumInlineAdmin(admin.TabularInline):
@@ -52,7 +52,7 @@ class PollAnswerAdmin(admin.TabularInline):
 class TopicAdmin(admin.ModelAdmin):
     list_display = ['name', 'forum', 'created', 'head', 'post_count', 'poll_type',]
     list_per_page = 20
-    raw_id_fields = ['user', 'subscribers']
+    raw_id_fields = ['user']
     ordering = ['-created']
     date_hierarchy = 'created'
     search_fields = ['name']
@@ -63,7 +63,7 @@ class TopicAdmin(admin.ModelAdmin):
          ),
         (_('Additional options'), {
                 'classes': ('collapse',),
-                'fields': (('views', 'post_count'), ('sticky', 'closed'), 'subscribers')
+                'fields': (('views', 'post_count'), ('sticky', 'closed'))
                 }
          ),
         )
@@ -110,34 +110,14 @@ class ProfileAdmin(admin.ModelAdmin):
         (None, {
                 'fields': ('time_zone', 'language')
                 }
-         ),
-        (_('Additional options'), {
-                'classes': ('collapse',),
-                'fields' : ('avatar', 'signature', 'show_signatures')
-                }
-         ),
+         )
         )
-
-
-class AttachmentAdmin(admin.ModelAdmin):
-    list_display = ['file', 'size', 'admin_view_post', 'admin_edit_post']
-
-    def admin_view_post(self, obj):
-        return u'<a href="%s">view</a>' % obj.post.get_absolute_url()
-    admin_view_post.allow_tags = True
-    admin_view_post.short_description = _('View post')
-
-    def admin_edit_post(self, obj):
-        return u'<a href="%s">edit</a>' % reverse('admin:pybb_post_change', args=[obj.post.pk])
-    admin_edit_post.allow_tags = True
-    admin_edit_post.short_description = _('Edit post')
 
 
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Forum, ForumAdmin)
 admin.site.register(Topic, TopicAdmin)
 admin.site.register(Post, PostAdmin)
-admin.site.register(Attachment, AttachmentAdmin)
 
 if settings.AUTH_PROFILE_MODULE == 'pybb.Profile':
     admin.site.register(Profile, ProfileAdmin)
