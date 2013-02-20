@@ -11,9 +11,6 @@ PYBB_TOPIC_PAGE_SIZE = getattr(settings, 'PYBB_TOPIC_PAGE_SIZE', 10)
 PYBB_FORUM_PAGE_SIZE = getattr(settings, 'PYBB_FORUM_PAGE_SIZE', 20)
 PYBB_DEFAULT_TIME_ZONE = getattr(settings, 'PYBB_DEFAULT_TIME_ZONE', -5)
 
-PYBB_SIGNATURE_MAX_LENGTH = getattr(settings, 'PYBB_SIGNATURE_MAX_LENGTH', 1024)
-PYBB_SIGNATURE_MAX_LINES = getattr(settings, 'PYBB_SIGNATURE_MAX_LINES', 3)
-
 PYBB_DEFAULT_MARKUP = getattr(settings, 'PYBB_DEFAULT_MARKUP', 'bbcode')
 PYBB_FREEZE_FIRST_POST = getattr(settings, 'PYBB_FREEZE_FIRST_POST', False)
 
@@ -21,11 +18,10 @@ PYBB_DEFAULT_TITLE = getattr(settings, 'PYBB_DEFAULT_TITLE', 'PYBB Powered Forum
 
 from postmarkup import render_bbcode
 from markdown import Markdown
-from django.utils.html import urlize
 
 PYBB_MARKUP_ENGINES = getattr(settings, 'PYBB_MARKUP_ENGINES', {
-    'bbcode': lambda str: urlize(render_bbcode(str, exclude_tags=['size', 'center'])),
-    'markdown': lambda str: urlize(Markdown(safe_mode='escape').convert(str))
+    'bbcode': lambda str: render_bbcode(str, exclude_tags=['size', 'center']),
+    'markdown': lambda str: Markdown(safe_mode='escape').convert(str)
 })
 
 PYBB_QUOTE_ENGINES = getattr(settings, 'PYBB_QUOTE_ENGINES', {

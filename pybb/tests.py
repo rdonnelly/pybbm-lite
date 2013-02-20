@@ -91,13 +91,9 @@ class FeaturesTest(TestCase, SharedTestModule):
         response = self.client.get(reverse('pybb:edit_profile'))
         self.assertEqual(response.status_code, 200)
         values = self.get_form_values(response, 'profile-edit')
-        values['signature'] = 'test signature'
         response = self.client.post(reverse('pybb:edit_profile'), data=values, follow=True)
         self.assertEqual(response.status_code, 200)
         self.client.get(self.post.get_absolute_url(), follow=True)
-        self.assertContains(response, 'test signature')
-        # Test empty signature
-        values['signature'] = ''
         response = self.client.post(reverse('pybb:edit_profile'), data=values, follow=True)
         self.assertEqual(len(response.context['form'].errors), 0)
 

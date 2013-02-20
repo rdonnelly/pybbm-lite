@@ -74,18 +74,13 @@
                 {% endfor %}
             </ul>
         {% endif %}
-        {% if request.path != '/' %}
-            <div id="breadcrumb">
-                {% block breadcrumb %}
-                    <a href="/">Main</a>
-                {% endblock breadcrumb %}
-            </div>
-        {% endif %}
-        {% if request.path == '/' %}
-            <div class='forum-headline alert alert-block'>
-                This is a default installation of PyBBModified Lite with default theme from example.
-            </div>
-        {% endif %}
+
+        <div id="breadcrumb">
+            {% block breadcrumb %}
+                <a href="/">Main</a>
+            {% endblock breadcrumb %}
+        </div>
+
         <div id="content">
             {% block content %}
             {% endblock content %}
