@@ -33,7 +33,7 @@
 <div class="navbar navbar-inverse navbar-fixed-top">
     <div class="navbar-inner">
         <div class="container">
-            <a class="brand" href="/">PYBB Modified Lite.</a>
+            <a class="brand" href="{% url pybb:index %}">PYBB Modified Lite.</a>
             <ul class="nav">
                 {% if request.user.is_authenticated %}
                     <li>
